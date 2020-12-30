@@ -1,0 +1,38 @@
+body {
+  background-color: #1d1d1d !important;
+  font-family: "Asap", sans-serif;
+  color: #989898;
+  margin: 10px;
+  font-size: 16px;
+  padding: 2%;
+}
+
+.tvimage {
+  margin-bottom: 5%;
+  width: 100%;
+  height: 90%;
+  object-fit: cover;
+}
+
+.delete-button {
+      position: absolute;
+      left: 90%;
+      top: 10%;
+      transform: translate(-80%, -10%);
+}
+
+h1, p {
+  color: white;
+}
+
+.jumbotron h1, .jumbotron p {
+  color: black;
+}
+
+.search {
+    float: right;
+    margin-right: 6px;
+    margin-top: -20px;
+    position: relative;
+    z-index: 2;
+}

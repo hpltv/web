@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}HPLTV - {{config.public_name}}{% endblock title %}
+
+{% block content %}
+      {% if edit %}
+      <h1>Configuración de: <strong>{{config.public_name}}</strong></h1>
+<div class="input-group mb-3 col-sm-8">
+  <div class="input-group-prepend">
+    <span class="input-group-text" id="basic-addon1">Espectador:</span>
+  </div>
+  <input id="link-1" type="text" class="form-control" value="{{ request.scheme }}://{{ request.get_host }}{% url 'view' config.public_name %}" aria-describedby="basic-addon1" readonly>
+  <div class="input-group-append">
+    <button id="copy-1" class="btn btn-outline-secondary" type="button"><i id="copy-public" class="fa fa-copy"></i></button>
+  </div>
+</div>
+<div class="input-group mb-3 col-sm-8">
+  <div class="input-group-prepend">
+    <span class="input-group-text" id="basic-addon1">Administrador:</span>
+  </div>
+  <input id="link-2" type="text" class="form-control" value="{{ request.scheme }}://{{ request.get_host }}{% url 'edit' config.private_id %}" aria-describedby="basic-addon1" readonly>
+  <div class="input-group-append">
+    <button id="copy-2" class="btn btn-outline-secondary" type="button"><i id="copy-private" class="fa fa-copy"></i></button>
+  </div>
+</div>
+      {% endif %}
+      <div class="row">
+        {% for entry in config.entries.all %}
+        <div class="col-sm-4 thumbnail">
+          <a href="{{entry.url}}">
+            <img
+              class="tvimage"
+              src="{{entry.image_url}}"
+              alt="{{entry.title}}"
+            />
+          </a>
+          {% if edit %}
+          <form action="{% url 'remove-entry' config.private_id %}" method="post">
+            <input type="hidden" name="entry_id" value="{{entry.id}}">
+            {% csrf_token %}
+            <input type="submit" class="delete-button btn btn-primary" value="Borrar" >
+          </form>
+          {% endif %}
+        </div>
+        {% endfor %}
+        {% if edit %}
+        <div class="col-sm-4 additem my-auto" align="center">
+          <button type="button" class="btn btn-outline-primary" href="#" data-toggle="modal" data-target="#add-link">
+            <span class="fa fa-plus" aria-hidden="true"></span>
+            Añadir enlace
+          </button>
+        </div>
+        {% endif %}
+      </div>
+    <div class="modal" tabindex="-1" role="dialog" id="add-link">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <form action="{% url 'add-url' config.private_id %}" method="post">
+          <div class="modal-header">
+            <h5 class="modal-title">Añadir enlace</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body form-group">
+              <label for="title">Título</label>
+              <input class="form-control titlesAutocomplete" type="text" id="title" name="title" value="" required data-url="{% url 'list-titles' %}" autocomplete="off">
+              <br/>
+              <label for="url">URL</label>
+              <div class="input-group">
+              <input class="form-control" id="url" type="url" name="url" value="" required>
+                <div class="input-group-append">
+                  <button id="search-button" class="btn btn-outline-secondary" type="button">
+                    <i id="search-icon" class="fa fa-search"></i>
+                    <i id="searching-icon" class="fa fa-spinner fa-spin" style="display:none"></i>
+                  </button>
+                </div>
+              </div>
+              <br/>
+              <label for="image_url">URL Imagen</label>
+              <input class="form-control" id="image-url" type="url" name="image_url" value="" required disabled>
+          </div>
+          <div class="modal-footer">
+            {% csrf_token %}
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Descartar</button>
+            <input type="submit" class="btn btn-primary" value="Guardar" >
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+{% endblock content %}
+
+{% block extra_jq %}
+    $('.titlesAutocomplete').autoComplete({preventEnter: true, minLength: 2});
+    $('.titlesAutocomplete').on('autocomplete.freevalue', function(evt, item) {
+        $('#url, #image-url').attr("disabled", false);
+    });
+    $('.titlesAutocomplete').on('autocomplete.select', function(evt, item) {
+        $('#image-url, #url').attr("disabled", true);
+        $.get( "/title/", {title: item}, function( data ) {
+          $('#image-url').val(data["image_url"]);
+          $('#url').val(data["url"]);
+        });
+    });
+    $( "#search-button" ).click(function() {
+        $('#searching-icon').show()
+        $('#search-icon').hide()
+        var url = $( "#url" ).val();
+        $.get( "/extract/", {url: url}, function( data ) {
+          $('#title').val(data["title"]);
+          $('#url').val(data["url"]);
+          $('#image-url').val(data["image_url"]);
+        })
+        .always(function(){
+          $('#search-icon').show()
+          $('#searching-icon').hide()
+        });
+    });
+    $( "#copy-1" ).click(function() {
+      $( "#link-1" ).select()
+      document.execCommand("copy");
+    });
+    $( "#copy-2" ).click(function() {
+      $( "#link-2" ).select()
+      document.execCommand("copy");
+    });
+{% endblock extra_jq %}

@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Hija ponme la TV{% endblock title %}
+
+{% block content %}
+<div class="jumbotron">
+  <h1 class="display-4">Hija ponme la TV</h1>
+  <p class="lead">Crea una parrilla de television para las personas que quieres.</p>
+  <hr class="my-4">
+    <ul class="list-group">
+        <li class="list-group-item">1. Dale un nombre a tu parrilla.</li>
+        <li class="list-group-item">2. Configura los enlaces la la parrilla.</li>
+        <li class="list-group-item">3. Comparte la URL de espectador con los que quieres.</li>
+        <li class="list-group-item">4. Cambia los enlaces de la parrilla siempre que quieras.</li>
+    </ul>
+  <hr class="my-4">
+  <p class="lead">
+    <form action="{% url 'create-config' %}" method="post">
+        <div class="input-group mb-3 col-sm-4">
+            <input type="text" name="title" class="form-control" placeholder="Nombre de la parrilla" required>
+            <div class="input-group-append">
+                <input type="submit" class="btn btn-outline-primary" value="Empezar!" >
+            </div>
+        </div>
+        {% csrf_token %}
+    </form>
+  </p>
+</div>
+{% endblock content %}
