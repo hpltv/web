@@ -2,11 +2,19 @@
 
 from django.db import migrations
 
-
 INITIAL_ENTRIES = [
-    ("tve", "https://www.rtve.es/directo/la-1/", "https://rtve.es/contenidos/imagenes/directo_fb_la1.jpg"),
-    ("Antena 3", "https://www.atresplayer.com/directos/antena3/", "https://imagenes.atresplayer.com/atp/clipping/cmsimages02/2020/01/14/A6A0AABD-8E66-467B-AB34-C2BA2B180ACD//720x540.jpg"),
+    (
+        "tve",
+        "https://www.rtve.es/directo/la-1/",
+        "https://rtve.es/contenidos/imagenes/directo_fb_la1.jpg",
+    ),
+    (
+        "Antena 3",
+        "https://www.atresplayer.com/directos/antena3/",
+        "https://imagenes.atresplayer.com/atp/clipping/cmsimages02/2020/01/14/A6A0AABD-8E66-467B-AB34-C2BA2B180ACD//720x540.jpg",
+    ),
 ]
+
 
 def create_tv_entries(apps, schema_editor):
     db_alias = schema_editor.connection.alias
@@ -23,7 +31,7 @@ def create_tv_entries(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('web', '0001_initial'),
+        ("web", "0001_initial"),
     ]
 
     operations = [

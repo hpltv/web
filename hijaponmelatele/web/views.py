@@ -55,13 +55,14 @@ DEFAULT_ENTRIES = [
     "Antena 3",
 ]
 
+
 def create_config(request):
     title = request.POST["title"]
     suffix = dt.datetime.now().strftime("%Y%m%d%H%M%S")
     config = models.DisplayConfig(public_name=f"{title}-{suffix}")
     config.save()
     for entry_id in DEFAULT_ENTRIES:
-        entry = models.TVEntry.objects.get(title=entry_id)
+        entry = models.TVEntry.objects.get(title=entryid_id)
         config.entries.add(entry)
     config.save()
     return redirect("edit", private_id=config.private_id)
