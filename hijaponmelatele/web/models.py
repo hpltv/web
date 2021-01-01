@@ -14,7 +14,7 @@ def create_id():
 
 class TVEntry(models.Model):
     id = models.AutoField(primary_key=True, editable=False, blank=True)
-    title = models.CharField(max_length=100, db_index=True, unique=True)
+    title = models.CharField(max_length=200, db_index=True, null=True)
     url = models.URLField(max_length=200, db_index=True)
     image_url = models.URLField(max_length=200)
 

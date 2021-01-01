@@ -14,12 +14,12 @@ test:
 .PHONY: lint
 lint:
 	$(PYTHON) -m pylint hijaponmelatele
-	$(PYTHON) -m isort hijaponmelatele --check --recursive
+	$(PYTHON) -m isort hijaponmelatele --check
 	$(PYTHON) -m black hijaponmelatele --check
 
 .PHONY: format
 format:
-	$(PYTHON) -m isort hijaponmelatele --recursive
+	$(PYTHON) -m isort hijaponmelatele
 	$(PYTHON) -m black hijaponmelatele
 
 .PHONY: runlocal

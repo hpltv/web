@@ -32,14 +32,10 @@ def edit(request, private_id):
 
 def add_url(request, private_id):
     config = models.DisplayConfig.objects.get(private_id=private_id)
-    title = request.POST.get("title")
-    try:
-        entry = models.TVEntry.objects.get(title=title)
-    except models.TVEntry.DoesNotExist:
-        url = request.POST.get("url")
-        image_url = request.POST.get("image_url")
-        entry = models.TVEntry(title=title, url=url, image_url=image_url)
-        entry.save()
+    url = request.POST["url"]
+    image_url = request.POST["image_url"]
+    entry = models.TVEntry(url=url, image_url=image_url)
+    entry.save()
     entry.configs.add(config)
     entry.save()
     return redirect("edit", private_id=private_id)
@@ -54,35 +50,21 @@ def remove_entry(request, private_id):
     return redirect("edit", private_id=private_id)
 
 
-def list_titles(request):
-    query = request.GET.get("q", "")
-    titles = [
-        v[0]
-        for v in models.TVEntry.objects.filter(title__icontains=query).values_list(
-            "title"
-        )[:5000]
-    ]
-    return JsonResponse(titles, safe=False)
-
+DEFAULT_ENTRIES = [
+    "tve",
+    "Antena 3",
+]
 
 def create_config(request):
     title = request.POST["title"]
     suffix = dt.datetime.now().strftime("%Y%m%d%H%M%S")
     config = models.DisplayConfig(public_name=f"{title}-{suffix}")
     config.save()
+    for entry_id in DEFAULT_ENTRIES:
+        entry = models.TVEntry.objects.get(title=entry_id)
+        config.entries.add(entry)
+    config.save()
     return redirect("edit", private_id=config.private_id)
-
-
-def get_title(request):
-    title = request.GET["title"]
-    entry = models.TVEntry.objects.get(title=title)
-    return JsonResponse(
-        {
-            "title": entry.title,
-            "url": entry.url,
-            "image_url": entry.image_url,
-        }
-    )
 
 
 def get_meta_tag(soup, value):
@@ -90,9 +72,21 @@ def get_meta_tag(soup, value):
         return meta["content"]
 
 
+def sanitize_url(url):
+    return url
+
+
 def extract_metadata(request):
+    url = sanitize_url(request.GET["url"])
+    if entry := models.TVEntry.objects.filter(url=url).first():
+        return JsonResponse(
+            {
+                "url": entry.url,
+                "image_url": entry.image_url,
+            }
+        )
+
     try:
-        url = request.GET["url"]
         headers = {"accept-language": "es-ES,es;q=0.9"}
         page = requests.get(url, headers=headers)
         page.raise_for_status()
@@ -102,13 +96,12 @@ def extract_metadata(request):
     except requests.exceptions.RequestException as e:
         logger.info(f"Failed to extract {url}: {e}")
         return HttpResponseBadRequest()
-    if title := get_meta_tag(soup, "og:title"):
-        title = title.split("|")[0].strip()
-    meta_url = get_meta_tag(soup, "og:url")
+    meta_url = get_meta_tag(soup, "og:url") or url
     image = get_meta_tag(soup, "og:image")
+    if not image:
+        return HttpResponseBadRequest()
     return JsonResponse(
         {
-            "title": title,
             "url": meta_url,
             "image_url": image,
         }

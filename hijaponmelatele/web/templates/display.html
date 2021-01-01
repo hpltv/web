@@ -31,7 +31,6 @@
             <img
               class="tvimage"
               src="{{entry.image_url}}"
-              alt="{{entry.title}}"
             />
           </a>
           {% if edit %}
@@ -63,9 +62,6 @@
             </button>
           </div>
           <div class="modal-body form-group">
-              <label for="title">Título</label>
-              <input class="form-control titlesAutocomplete" type="text" id="title" name="title" value="" required data-url="{% url 'list-titles' %}" autocomplete="off">
-              <br/>
               <label for="url">URL</label>
               <div class="input-group">
               <input class="form-control" id="url" type="url" name="url" value="" required>
@@ -78,7 +74,7 @@
               </div>
               <br/>
               <label for="image_url">URL Imagen</label>
-              <input class="form-control" id="image-url" type="url" name="image_url" value="" required disabled>
+              <input class="form-control" id="image-url" type="url" name="image_url" value="" required readonly>
           </div>
           <div class="modal-footer">
             {% csrf_token %}
@@ -92,25 +88,17 @@
 {% endblock content %}
 
 {% block extra_jq %}
-    $('.titlesAutocomplete').autoComplete({preventEnter: true, minLength: 2});
-    $('.titlesAutocomplete').on('autocomplete.freevalue', function(evt, item) {
-        $('#url, #image-url').attr("disabled", false);
-    });
-    $('.titlesAutocomplete').on('autocomplete.select', function(evt, item) {
-        $('#image-url, #url').attr("disabled", true);
-        $.get( "/title/", {title: item}, function( data ) {
-          $('#image-url').val(data["image_url"]);
-          $('#url').val(data["url"]);
-        });
-    });
     $( "#search-button" ).click(function() {
         $('#searching-icon').show()
         $('#search-icon').hide()
         var url = $( "#url" ).val();
         $.get( "/extract/", {url: url}, function( data ) {
-          $('#title').val(data["title"]);
           $('#url').val(data["url"]);
           $('#image-url').val(data["image_url"]);
+          $('#image-url').attr("readonly", true);
+        })
+        .fail(function(){
+          $('#image-url').attr("readonly", false);
         })
         .always(function(){
           $('#search-icon').show()
