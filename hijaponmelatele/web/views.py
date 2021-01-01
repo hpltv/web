@@ -62,7 +62,7 @@ def create_config(request):
     config = models.DisplayConfig(public_name=f"{title}-{suffix}")
     config.save()
     for entry_id in DEFAULT_ENTRIES:
-        entry = models.TVEntry.objects.get(title=entryid_id)
+        entry = models.TVEntry.objects.get(title=entry_id)
         config.entries.add(entry)
     config.save()
     return redirect("edit", private_id=config.private_id)
