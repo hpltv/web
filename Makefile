@@ -13,7 +13,6 @@ test:
 
 .PHONY: lint
 lint:
-	$(PYTHON) -m pylint hijaponmelatele
 	$(PYTHON) -m isort hijaponmelatele --check
 	$(PYTHON) -m black hijaponmelatele --check
 
